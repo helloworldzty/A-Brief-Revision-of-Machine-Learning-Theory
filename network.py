@@ -18,6 +18,7 @@ class Layer5CNN(nn.Module):
         super(Layer5CNN, self).__init__()
         self.conv_layers = nn.Sequential(
             #Input Layer
+            nn.BatchNorm1d(1),
             nn.Conv1d(in_channels=1, out_channels = 64, kernel_size=128, stride=12),
             nn.LeakyReLU(),
             nn.BatchNorm1d(64),
@@ -46,6 +47,8 @@ class Layer5CNN(nn.Module):
         )
         
     def forward(self, x):
+        if x.dim() == 2:
+            x = x.unsqueeze(1)
         return self.conv_layers(x)
     
 class BasicBlock1D(nn.Module):
@@ -87,6 +90,7 @@ class ResNet18_1D(nn.Module):
         self.feat_dim = feat_dim
         
         self.in_channels = 64
+        self.norm = nn.BatchNorm1d(1)
         self.conv1 = nn.Conv1d(input_channels, 64, kernel_size=7, stride=2, padding=3, bias=False)
         self.bn1 = nn.BatchNorm1d(64)
         self.relu = nn.ReLU(inplace=True)
@@ -132,7 +136,7 @@ class ResNet18_1D(nn.Module):
 
         if x.dim() == 2:
             x = x.unsqueeze(1)
-        
+        x = self.norm(x)
         x = self.conv1(x)
         x = self.bn1(x)
         x = self.relu(x)
